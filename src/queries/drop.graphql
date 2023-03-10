@@ -1,0 +1,55 @@
+query GetDrop($project: UUID!, $drop: UUID!) {
+  project(id: $project) {
+    drop(id: $drop) {
+      id
+      startTime
+      endTime
+      collection {
+        totalMints
+        supply
+        id
+        address
+        holders {
+          address
+          owns
+        }
+        metadataJson {
+          image
+          name
+          description
+          attributes {
+            traitType
+            value
+          }
+        }
+      }
+    }
+  }
+}
+
+
+query GetProjectDrops($project: UUID!) {
+  project(id: $project) {
+    drops {
+      id
+      startTime
+      endTime
+      collection {
+        id
+        totalMints
+        supply
+        address
+        holders {
+          address
+          owns
+        }
+        metadataJson {
+          image
+          name
+          description
+        }
+      }
+    }
+  }
+}
+ 
