@@ -18,8 +18,8 @@ const nextConfig = {
     return [
       {
         source: "/",
-        destination: "/drops",
-        permanent: true,
+        destination: "/keys",
+        permanent: false
       },
     ];
   },

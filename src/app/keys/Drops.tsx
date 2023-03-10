@@ -4,8 +4,7 @@ import { Drop, Maybe } from "@/graphql.types";
 import Link from "next/link";
 import { Wallet } from "@prisma/client";
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { useQuery } from "@apollo/client";
-import { SayHello } from "@/queries/hello.graphql";
+
 
 interface HomeProps {
   wallet: Wallet | null;
@@ -13,7 +12,6 @@ interface HomeProps {
 }
 
 export default function Home({ wallet, drops }: HomeProps) {
-  useQuery(SayHello);
 
   return (
     <main className="flex-row grid flex-grow grid-cols-5 gap-4 justify-between mt-20">
@@ -24,7 +22,7 @@ export default function Home({ wallet, drops }: HomeProps) {
         );
 
         return (
-          <Link className="relative" href={`/drops/${drop.id}`} key={drop.id}>
+          <Link className="relative" href={`/keys/${drop.id}`} key={drop.id}>
             <div className="absolute left-2 top-2 px-2 py-1 text-xs text-white bg-gray-100 bg-opacity-40 flex flex-row justify-center items-center rounded-full z-10">
               {drop.collection?.totalMints} / {drop.collection.supply}
             </div>

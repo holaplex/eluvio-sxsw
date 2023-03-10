@@ -20,14 +20,14 @@ export default function Basic({
     <>
       <header className="w-full flex justify-end item-center py-6">
         <button
-          className="rounded-md px-4 py-1 bg-white border-black text-black border-2 hover:bg-black hover:text-white"
+          className="rounded-full px-6 py-3 bg-yellow-300 text-black"
           onClick={() => signOut()}
         >
           Logout
         </button>
       </header>
       {children}
-      <footer className="w-80 py-4 px-6 rounded-lg mb-6 mt-6 justify-self-end bg-gray-100 flex flex-col gap-2 items-start">
+      <footer className="w-80 py-4 px-6 rounded-lg mb-6 mt-6 justify-self-end bg-white bg-opacity-10 flex flex-col gap-2 items-start">
         {session ? (
           <div className="flex flex-row gap-2 items-center">
             <img
@@ -42,7 +42,7 @@ export default function Basic({
         ) : (
           <Link
             href="/login"
-            className="rounded-md px-4 py-1 bg-white border-black text-black border-2 hover:bg-black hover:text-white"
+            className="rounded-full px-6 py-3 bg-yellow-300 text-black"
           >
             Login in
           </Link>

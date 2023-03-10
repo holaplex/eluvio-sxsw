@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <body
         className={clsx(
           inter.className,
-          "container m-auto flex flex-col flex-grow h-screen items-center px-4 lg:px-0"
+          "bg-black text-white container m-auto flex flex-col flex-grow h-screen items-center px-4 lg:px-0"
         )}
       >
         <App>{children}</App>
