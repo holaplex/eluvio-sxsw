@@ -14,7 +14,7 @@ interface HomeProps {
 
 export default function Home({ wallet, drops }: HomeProps) {
   useQuery(SayHello);
-  
+
   return (
     <main className="flex-row grid flex-grow grid-cols-5 gap-4 justify-between mt-20">
       {drops?.map((drop) => {
@@ -31,7 +31,7 @@ export default function Home({ wallet, drops }: HomeProps) {
             <img
               className="aspect-square rounded-lg hover:opacity-80 transition"
               src={metadataJson?.image}
-              alt={`nft ${metadataJson.name}`}
+              alt={`nft ${metadataJson?.name}`}
             />
             {owns && (
               <div className="w-6 aspect-square z-10 flex bg-opacity-40 justify-center items-center bg-gray-100 rounded-full absolute top-2 right-2">

@@ -33,7 +33,6 @@ export default function Drop({
     forgeKey({
       variables: { key: drop?.id },
       onCompleted: ({ forgeKey }) => {
-        debugger;
       },
     });
   };
@@ -50,7 +49,7 @@ export default function Drop({
         <img
           className="w-full aspect-square rounded-lg"
           src={collection?.metadataJson?.image}
-          alt={`nft ${collection?.metadataJson.name}`}
+          alt={`nft ${collection?.metadataJson?.name}`}
         />
 
         {owns && (

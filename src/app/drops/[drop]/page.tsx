@@ -13,6 +13,7 @@ interface GetDropData {
 
 interface GetDropVars {
   project: string;
+  drop: string;
 }
 
 export default async function DropPage({

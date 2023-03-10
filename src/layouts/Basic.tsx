@@ -32,7 +32,7 @@ export default function Basic({
           <div className="flex flex-row gap-2 items-center">
             <img
               className="w-10 h-10 rounded-full"
-              src={session?.user?.image}
+              src={session?.user?.image as string}
             />
             <div className="flex flex-col gap-1">
               <span>{session?.user?.name}</span>
