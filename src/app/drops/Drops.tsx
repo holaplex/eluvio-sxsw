@@ -4,6 +4,8 @@ import { Drop, Maybe } from "@/graphql.types";
 import Link from "next/link";
 import { Wallet } from "@prisma/client";
 import { CheckIcon } from "@heroicons/react/24/outline";
+import { useQuery } from "@apollo/client";
+import { SayHello } from "@/queries/hello.graphql";
 
 interface HomeProps {
   wallet: Wallet | null;
@@ -11,6 +13,8 @@ interface HomeProps {
 }
 
 export default function Home({ wallet, drops }: HomeProps) {
+  useQuery(SayHello);
+  
   return (
     <main className="flex-row grid flex-grow grid-cols-5 gap-4 justify-between mt-20">
       {drops?.map((drop) => {

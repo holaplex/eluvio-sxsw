@@ -14,13 +14,14 @@ const config: CodegenConfig = {
         },
       },
     },
+    "./schema.graphql"
   ],
   generates: {
     "./@types/graphql.d.ts": {
       plugins: ["typescript-graphql-files-modules"],
     },
     "./src/graphql.types.ts": {
-      plugins: ["typescript"],
+      plugins: ["typescript", "typescript-resolvers"],
     },
   },
 };

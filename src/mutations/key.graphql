@@ -1,0 +1,3 @@
+mutation ForgeKey($key: ID!) {
+  forgeKey(key: $key)
+}

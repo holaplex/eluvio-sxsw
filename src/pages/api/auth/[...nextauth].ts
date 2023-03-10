@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
         mutation: CreateCustomer,
         variables: {
           input: {
-            project: process.env.NEXT_PUBLIC_HOLAPLEX_PROJECT_ID,
+            project: process.env.HOLAPLEX_PROJECT_ID,
           },
         },
       });

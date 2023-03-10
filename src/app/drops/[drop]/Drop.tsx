@@ -3,6 +3,16 @@
 import { Drop as DropType, Maybe } from "@/graphql.types";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { Wallet } from "@prisma/client";
+import { ForgeKey } from "@/mutations/key.graphql";
+import { useMutation } from "@apollo/client";
+
+interface ForgeKeyData {
+  forgeKey: string;
+}
+
+interface ForgeKeyVars {
+  key: string;
+}
 
 export default function Drop({
   drop,
@@ -15,6 +25,18 @@ export default function Drop({
   const owns = collection?.holders?.find(
     (holder) => holder.address === wallet?.address
   );
+  const [forgeKey, { loading }] = useMutation<ForgeKeyData, ForgeKeyVars>(
+    ForgeKey
+  );
+
+  const onForge = () => {
+    forgeKey({
+      variables: { key: drop?.id },
+      onCompleted: ({ forgeKey }) => {
+        debugger;
+      },
+    });
+  };
 
   return (
     <main className="m-auto max-w-md">
@@ -37,7 +59,10 @@ export default function Drop({
           </div>
         )}
       </div>
-      <button className="rounded-md w-full mt-4 px-4 py-2 bg-white border-black text-black border-2 hover:bg-black hover:text-white">
+      <button
+        onClick={onForge}
+        className="rounded-md w-full mt-4 px-4 py-2 bg-white border-black text-black border-2 hover:bg-black hover:text-white"
+      >
         Mint
       </button>
     </main>
