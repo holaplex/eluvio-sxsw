@@ -10,6 +10,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import clsx from "clsx";
 import { isNil, not, pipe } from "ramda";
 import useMe from "@/hooks/useMe";
+import { useRouter } from "next/navigation";
 
 interface ForgeKeyData {
   forgeKey: string;
@@ -29,6 +30,7 @@ interface GetDropVars {
 export default function Drop({ drop }: { drop: string }) {
   const me = useMe();
   const client = useApolloClient();
+  const router = useRouter();
   const dropQuery = useQuery<GetDropsData, GetDropVars>(GetDrop, {
     variables: { drop },
   });
@@ -43,7 +45,7 @@ export default function Drop({ drop }: { drop: string }) {
 
   const onForge = () => {
     forgeKey({
-      variables: { drop: dropQuery.data?.drop.id },
+      variables: { drop },
       onCompleted: ({ forgeKey }) => {
         client.cache.updateQuery<GetDropsData, GetDropVars>(
           {
@@ -75,6 +77,7 @@ export default function Drop({ drop }: { drop: string }) {
             };
           }
         );
+        router.push('/keys');
       },
     });
   };

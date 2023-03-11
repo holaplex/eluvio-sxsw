@@ -35,6 +35,7 @@ export default class UserSource {
       GetCustomerWalletData,
       GetCustomerWalletVars
     >({
+      fetchPolicy: 'network-only',
       query: GetCustomerWallet,
       variables: {
         project: process.env.HOLAPLEX_PROJECT_ID as string,

@@ -21,7 +21,7 @@ export default function Basic({
   return (
     <>
       {children}
-      <footer className="w-full max-w-md py-4 px-6 rounded-lg mb-6 mt-6 justify-self-end bg-white bg-opacity-10 flex flex-col gap-2 items-start">
+      <footer className="w-full max-w-md py-4 px-6 rounded-lg mb-6 mt-8 justify-self-end bg-white bg-opacity-10 flex flex-col gap-2 items-start">
         {session ? (
           <div className="flex flex-row gap-2 items-center">
             <img

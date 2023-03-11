@@ -52,6 +52,7 @@ interface GetDropVars {
 export const queryResolvers: QueryResolvers<AppContext> = {
   async drops(_a, _b, { dataSources: { holaplex } }) {
     const { data } = await holaplex.query<GetDropsData, GetDropsVars>({
+      fetchPolicy: 'network-only',
       query: GetProjectDrops,
       variables: { project: process.env.HOLAPLEX_PROJECT_ID as string },
     });
@@ -60,6 +61,7 @@ export const queryResolvers: QueryResolvers<AppContext> = {
   },
   async drop(_a, { id }, { dataSources: { holaplex } }) {
     const { data } = await holaplex.query<GetDropData, GetDropVars>({
+      fetchPolicy: 'network-only',
       query: GetProjectDrop,
       variables: {
         project: process.env.HOLAPLEX_PROJECT_ID as string,

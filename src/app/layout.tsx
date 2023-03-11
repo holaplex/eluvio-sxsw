@@ -29,7 +29,7 @@ export default async function Layout({
       <body
         className={clsx(
           inter.className,
-          "bg-black text-white container m-auto flex flex-col flex-grow h-screen items-center px-4 lg:px-0"
+          "bg-black text-white container m-auto flex flex-col flex-grow min-h-screen items-center px-4 lg:px-0"
         )}
       >
         <App me={me}>{children}</App>
