@@ -1,55 +1,45 @@
-query GetDrop($project: UUID!, $drop: UUID!) {
-  project(id: $project) {
-    drop(id: $drop) {
+query GetDrops {
+  drops {
+    id
+    startTime
+    endTime
+    collection {
       id
-      startTime
-      endTime
-      collection {
-        totalMints
-        supply
-        id
+      totalMints
+      supply
+      address
+      holders {
         address
-        holders {
-          address
-          owns
-        }
-        metadataJson {
-          image
-          name
-          description
-          attributes {
-            traitType
-            value
-          }
-        }
+        owns
+      }
+      metadataJson {
+        image
+        name
+        description
       }
     }
   }
 }
 
-
-query GetProjectDrops($project: UUID!) {
-  project(id: $project) {
-    drops {
+query GetDrop($drop: ID!) {
+  drop(id: $drop) {
+    id
+    startTime
+    endTime
+    collection {
       id
-      startTime
-      endTime
-      collection {
-        id
-        totalMints
-        supply
+      totalMints
+      supply
+      address
+      holders {
         address
-        holders {
-          address
-          owns
-        }
-        metadataJson {
-          image
-          name
-          description
-        }
+        owns
+      }
+      metadataJson {
+        image
+        name
+        description
       }
     }
   }
 }
- 

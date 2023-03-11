@@ -35,8 +35,10 @@
     "next-auth": "^4.19.2",
     "next-plugin-graphql": "^0.0.2",
     "npm": "^9.6.1",
+    "ramda": "^0.28.0",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
+    "react-spinners": "^0.13.8",
     "svix": "^0.81.0"
   },
   "devDependencies": {
@@ -46,6 +48,7 @@
     "@graphql-codegen/typescript-document-nodes": "^2.3.12",
     "@graphql-codegen/typescript-graphql-files-modules": "^2.2.1",
     "@types/http-proxy": "^1.17.10",
+    "@types/ramda": "^0.28.23",
     "autoprefixer": "^10.4.13",
     "dotenv": "^16.0.3",
     "eslint": "^8.33.0",

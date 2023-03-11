@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { client } from "@/modules/holaplex";
+import holaplex from "@/modules/holaplex";
 import { Webhook, WebhookRequiredHeaders } from "svix";
 import { buffer } from "micro";
 import { CreateCustomerWallet } from "@/mutations/customer.graphql";
@@ -62,7 +62,7 @@ export default async function handler(
 
   switch (msg?.event_type) {
     case HolaplexWebhookEvent.CustomerTreasuryCreated:
-      const { data } = await client.mutate<
+      const { data } = await holaplex.mutate<
         CreateCustomerWalletData,
         CreateCustomerWalletVars
       >({

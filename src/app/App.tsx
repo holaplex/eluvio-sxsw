@@ -1,13 +1,19 @@
 "use client";
 
 import { ApolloProvider, InMemoryCache } from "@apollo/client";
-import { ApolloClient } from "@apollo/client";
-
-const client = new ApolloClient({
-  uri: "/api/graphql",
-  cache: new InMemoryCache({}),
-});
-
-export default function App({ children }: { children: React.ReactNode }) {
-  return <ApolloProvider client={client}>{children}</ApolloProvider>;
+import api from "@/modules/api";
+import MeProvider from "@/providers/MeProvider";
+import { User } from "@/graphql.types";
+export default function App({
+  children,
+  me,
+}: {
+  children: React.ReactNode;
+  me: User | undefined;
+}) {
+  return (
+    <ApolloProvider client={api}>
+      <MeProvider hydrate={me}>{children}</MeProvider>
+    </ApolloProvider>
+  );
 }

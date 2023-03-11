@@ -1,69 +1,134 @@
 "use client";
 
-import { Drop as DropType, Maybe } from "@/graphql.types";
+import { Collection, Drop as DropType } from "@/graphql.types";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import { Wallet } from "@prisma/client";
 import { ForgeKey } from "@/mutations/key.graphql";
-import { useMutation } from "@apollo/client";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client";
+import { GetDrop } from "@/queries/drop.graphql";
+import BounceLoader from "react-spinners/BounceLoader";
+import clsx from "clsx";
+import { isNil, not, pipe } from "ramda";
+import useMe from "@/hooks/useMe";
 
 interface ForgeKeyData {
   forgeKey: string;
 }
 
 interface ForgeKeyVars {
-  key: string;
+  drop: string;
 }
 
-export default function Drop({
-  drop,
-  wallet,
-}: {
-  drop: Maybe<DropType> | undefined;
-  wallet: Wallet | null;
-}) {
-  const collection = drop?.collection;
-  const owns = collection?.holders?.find(
-    (holder) => holder.address === wallet?.address
+interface GetDropsData {
+  drop: DropType;
+}
+
+interface GetDropVars {
+  drop: string;
+}
+export default function Drop({ drop }: { drop: string }) {
+  const me = useMe();
+  const client = useApolloClient();
+  const dropQuery = useQuery<GetDropsData, GetDropVars>(GetDrop, {
+    variables: { drop },
+  });
+  const collection = dropQuery.data?.drop.collection;
+  const holder = collection?.holders?.find(
+    (holder) => holder.address === me?.wallet?.address
   );
+  const owns = pipe(isNil, not)(holder);
   const [forgeKey, { loading }] = useMutation<ForgeKeyData, ForgeKeyVars>(
     ForgeKey
   );
 
   const onForge = () => {
     forgeKey({
-      variables: { key: drop?.id },
+      variables: { drop: dropQuery.data?.drop.id },
       onCompleted: ({ forgeKey }) => {
+        client.cache.updateQuery<GetDropsData, GetDropVars>(
+          {
+            query: GetDrop,
+            variables: {
+              drop,
+            },
+          },
+          (data) => {
+            const holders = data?.drop?.collection.holders || [];
+            return {
+              drop: {
+                ...(data?.drop as DropType),
+                collection: {
+                  ...(data?.drop.collection as Collection),
+                  totalMints: (data?.drop.collection.totalMints as number) + 1,
+                  holders: [
+                    ...holders,
+                    {
+                      __typename: "Holder",
+                      address: me?.wallet?.address as string,
+                      owns: 1,
+                      collectionId: data?.drop.collection.id,
+                      mints: [],
+                    },
+                  ],
+                },
+              },
+            };
+          }
+        );
       },
     });
   };
 
   return (
-    <main className="m-auto max-w-md">
-      <h1 className="text-xl font-bold mb-2">
-        {collection?.metadataJson?.name}
-      </h1>
-      <div className="relative w-full">
-        <div className="absolute left-2 top-2 px-2 py-1 text-xs text-white bg-gray-100 bg-opacity-40 flex flex-row justify-center items-center rounded-full z-10">
-          {collection?.totalMints} / {collection?.supply}
-        </div>
-        <img
-          className="w-full aspect-square rounded-lg"
-          src={collection?.metadataJson?.image}
-          alt={`nft ${collection?.metadataJson?.name}`}
-        />
+    <main className="m-auto w-full max-w-md flex flex-col items-center">
+      {dropQuery.loading ? (
+        <>
+          <div className="h-8 w-60 bg-gray-800 animate-pulse mb-4 rounded-md" />
+          <div className="w-full aspect-square bg-gray-800 animate-pulse rounded-lg" />
+          <div className="w-full h-12 rounded-full bg-gray-800 animate-pulse mt-4" />
+        </>
+      ) : (
+        <>
+          <h1 className="text-2xl text-center font-bold mb-4">
+            {collection?.metadataJson?.name}
+          </h1>
+          <div className="relative flex justify-center items-center w-full aspect-square rounded-lg overflow-hidden">
+            {loading && (
+              <BounceLoader
+                className="text-white z-40"
+                size={120}
+                color="#fff"
+              />
+            )}
+            <div className="absolute left-2 top-2 px-4 py-2 text-white bg-gray-900 bg-opacity-40 flex flex-row justify-center items-center rounded-full z-30">
+              {collection?.totalMints} / {collection?.supply}
+            </div>
+            <div
+              className={clsx(
+                "bg-black absolute top-0 left-0 right-0 bottom-0 z-20",
+                owns ? "bg-opacity-0" : "bg-opacity-50"
+              )}
+            />
+            <img
+              className="absolute top-0 bottom-0 left-0 right-0 z-10"
+              src={collection?.metadataJson?.image}
+              alt={`nft ${collection?.metadataJson?.name}`}
+            />
 
-        {owns && (
-          <div className="w-6 aspect-square z-10 flex bg-opacity-40 justify-center items-center bg-gray-100 rounded-full absolute top-2 right-2">
-            <CheckIcon className="w-4 text-white" />
+            {owns && <CheckIcon className="w-1/3 z-30 text-white" />}
           </div>
-        )}
-      </div>
-      <button
-        onClick={onForge}
-        className="rounded-md w-full mt-4 px-4 py-2 bg-white border-black text-black border-2 hover:bg-black hover:text-white"
-      >
-        Mint
-      </button>
+          <button
+            onClick={onForge}
+            disabled={owns || loading}
+            className={clsx(
+              "rounded-full w-full mt-4 px-6 py-3 bg-yellow-300 hover:bg-opacity-80 transition text-black",
+              { "bg-opacity-80": owns }
+            )}
+          >
+            Mint key
+          </button>
+        </>
+      )}
     </main>
   );
 }

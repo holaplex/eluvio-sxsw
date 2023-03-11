@@ -1,3 +1,5 @@
-mutation ForgeKey($key: ID!) {
-  forgeKey(key: $key)
+mutation ForgeKey($drop: ID!) {
+  mint(drop: $drop) {
+    address
+  }
 }

@@ -1,7 +1,570 @@
-  type Query {
-    hello: String
-  }
+schema {
+  query: Query
+  mutation: Mutation
+}
 
-  type Mutation {
-    forgeKey(key: ID!): String
-  }
+input AcceptInviteInput {
+  invite: UUID!
+}
+
+type AcceptInvitePayload {
+  invite: Invite!
+}
+
+type AccessToken {
+  accessToken: String!
+  expiresAt: NaiveDateTime!
+  tokenType: String!
+}
+
+union Affiliation = Owner | Member
+
+enum AssetType {
+  SOL
+  SOL_TEST
+  MATIC_TEST
+  MATIC
+  ETH_TEST
+  ETH
+}
+
+enum Blockchain {
+  ETHEREUM
+  POLYGON
+  SOLANA
+}
+
+type Collection {
+  id: UUID!
+  blockchain: Blockchain!
+  supply: Int
+  creationStatus: CreationStatus!
+  address: String
+  totalMints: Int!
+  metadataJson: MetadataJson
+  mints: [CollectionMint!]
+  creators: [CollectionCreator!]
+  holders: [Holder!]
+}
+
+type CollectionCreator {
+  collectionId: UUID!
+  address: String!
+  verified: Boolean!
+  share: Int!
+}
+
+input CollectionCreatorInput {
+  address: String!
+  verified: Boolean
+  share: Int!
+}
+
+type CollectionMint {
+  id: UUID!
+  collectionId: UUID!
+  address: String!
+  owner: String!
+  creationStatus: CreationStatus!
+  createdBy: UUID!
+  createdAt: NaiveDateTime!
+  collection: Collection
+}
+
+input CreateCredentialInput {
+  organization: UUID!
+  name: String!
+  projects: [UUID!]!
+  scopes: [String!]!
+}
+
+type CreateCredentialPayload {
+  credential: Credential!
+  accessToken: AccessToken!
+}
+
+input CreateCustomerInput {
+  project: UUID!
+}
+
+type CreateCustomerPayload {
+  customer: Customer!
+}
+
+input CreateCustomerWalletInput {
+  customer: UUID!
+  assetType: AssetType!
+}
+
+type CreateCustomerWalletPayload {
+  wallet: Wallet!
+}
+
+input CreateDropInput {
+  project: UUID!
+  price: Int
+  sellerFeeBasisPoints: Int
+  supply: Int
+  startTime: DateTime
+  endTime: DateTime
+  blockchain: Blockchain!
+  creators: [CollectionCreatorInput!]!
+  metadataJson: MetadataJsonInput!
+}
+
+type CreateDropPayload {
+  drop: Drop!
+}
+
+input CreateOrganizationInput {
+  name: String!
+  profileImageUrl: String
+}
+
+type CreateOrganizationPayload {
+  organization: Organization!
+}
+
+input CreateProjectInput {
+  organization: UUID!
+  name: String!
+  profileImageUrl: String
+}
+
+type CreateProjectPayload {
+  project: Project!
+}
+
+input CreateWebhookInput {
+  endpoint: String!
+  organization: UUID!
+  description: String!
+  projects: [UUID!]!
+  filterTypes: [FilterType!]!
+}
+
+type CreateWebhookPayload {
+  webhook: Webhook!
+  secret: String!
+}
+
+enum CreationStatus {
+  CREATED
+  PENDING
+}
+
+type Credential {
+  name: String!
+  clientId: String!
+  scopes: [String!]!
+  audiences: [String!]!
+  createdById: UUID!
+  organizationId: UUID!
+  createdAt: NaiveDateTime!
+  createdBy: User
+  projects: [Project!]!
+}
+
+type Customer {
+  id: UUID!
+  projectId: UUID!
+  createdAt: NaiveDateTime!
+  updatedAt: NaiveDateTime
+  treasury: Treasury
+}
+
+"""
+Implement the DateTime<Utc> scalar
+
+The input/output is a string in RFC3339 format.
+"""
+scalar DateTime
+
+input DeleteWebhookInput {
+  webhook: UUID!
+}
+
+type DeleteWebhookPayload {
+  webhook: UUID!
+}
+
+type Drop {
+  id: UUID!
+  projectId: UUID!
+  creationStatus: CreationStatus!
+  startTime: NaiveDateTime
+  endTime: NaiveDateTime
+  price: Int!
+  createdById: UUID!
+  createdAt: NaiveDateTime!
+  collection: Collection!
+  status: DropStatus!
+}
+
+enum DropStatus {
+  MINTING
+  MINTED
+  SCHEDULED
+  EXPIRED
+  CREATING
+}
+
+type EventType {
+  archived: Boolean
+  createdAt: String!
+  description: String!
+  name: String!
+  schemas: JSON!
+  updatedAt: String!
+}
+
+enum FilterType {
+  PROJECT_CREATED
+  CUSTOMER_CREATED
+  CUSTOMER_TREASURY_CREATED
+  PROJECT_WALLET_CREATED
+  CUSTOMER_WALLET_CREATED
+  DROP_CREATED
+  DROP_MINTED
+}
+
+type Holder {
+  collectionId: UUID!
+  address: String!
+  owns: Int!
+  mints: [String!]!
+}
+
+type Invite {
+  id: UUID!
+  email: String!
+  status: InviteStatus!
+  organizationId: UUID!
+  createdBy: UUID!
+  createdAt: NaiveDateTime!
+  updatedAt: NaiveDateTime
+  member: Member
+  organization: Organization
+}
+
+input InviteMemberInput {
+  organization: UUID!
+  email: String!
+}
+
+enum InviteStatus {
+  ACCEPTED
+  REVOKED
+  SENT
+}
+
+"""A scalar that can represent any JSON value."""
+scalar JSON
+
+type Member {
+  userId: UUID!
+  user: User
+  id: UUID!
+  organizationId: UUID!
+  createdAt: NaiveDateTime!
+  revokedAt: NaiveDateTime
+  inviteId: UUID!
+  organization: Organization
+  invite: Invite
+}
+
+type MetadataJson {
+  collectionId: UUID!
+  identifier: String!
+  name: String!
+  uri: String!
+  symbol: String!
+  description: String!
+  image: String!
+  animationUrl: String
+  externalUrl: String
+  attributes: [MetadataJsonAttribute!]
+}
+
+type MetadataJsonAttribute {
+  id: UUID!
+  collectionId: UUID!
+  traitType: String!
+  value: String!
+}
+
+input MetadataJsonAttributeInput {
+  traitType: String!
+  value: String!
+}
+
+input MetadataJsonCollectionInput {
+  name: String
+  family: String
+}
+
+input MetadataJsonFileInput {
+  uri: String
+  fileType: String
+}
+
+input MetadataJsonInput {
+  name: String!
+  symbol: String!
+  description: String!
+  image: String!
+  animationUrl: String
+  collection: MetadataJsonCollectionInput
+  attributes: [MetadataJsonAttributeInput!]!
+  externalUrl: String
+  properties: MetadataJsonPropertyInput
+}
+
+input MetadataJsonPropertyInput {
+  files: [MetadataJsonFileInput!]
+  category: String
+}
+
+input MintDropInput {
+  drop: UUID!
+  recipient: String!
+}
+
+type MintEditionPayload {
+  collectionMint: CollectionMint!
+}
+
+type Mutation {
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createCredential(input: CreateCredentialInput!): CreateCredentialPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createCustomer(input: CreateCustomerInput!): CreateCustomerPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createDrop(input: CreateDropInput!): CreateDropPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  mintEdition(input: MintDropInput!): MintEditionPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if unable to save organization to the database
+  """
+  createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  inviteMember(input: InviteMemberInput!): Invite!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  acceptInvite(input: AcceptInviteInput!): AcceptInvitePayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createCustomerWallet(input: CreateCustomerWalletInput!): CreateCustomerWalletPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  createWebhook(input: CreateWebhookInput!): CreateWebhookPayload!
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload!
+}
+
+"""
+ISO 8601 combined date and time without timezone.
+
+# Examples
+
+* `2015-07-01T08:59:60.123`,
+"""
+scalar NaiveDateTime
+
+type Organization {
+  id: UUID!
+  credential(clientId: String!): Credential!
+  credentials(limit: Int, offset: Int): [Credential!]!
+  name: String!
+  createdAt: NaiveDateTime!
+  deactivatedAt: NaiveDateTime
+  profileImageUrl: String
+  members: [Member!]
+  owner: Owner
+  invites(status: InviteStatus): [Invite!]!
+  projects: [Project!]!
+  webhooks: [Webhook!]
+  webhook(id: UUID!): Webhook
+}
+
+type Owner {
+  userId: UUID!
+  user: User
+  id: UUID!
+  organizationId: UUID!
+  createdAt: NaiveDateTime!
+  organization: Organization
+}
+
+type Project {
+  id: UUID!
+  customer(id: UUID!): Customer
+  customers: [Customer!]
+  drops: [Drop!]
+  drop(id: UUID!): Drop
+  name: String!
+  organizationId: UUID!
+  createdAt: NaiveDateTime!
+  deactivatedAt: NaiveDateTime
+  profileImageUrl: String
+  organization: Organization
+  treasury: Treasury
+}
+
+type Query {
+  user(id: UUID!): User
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  organization(id: UUID!): Organization
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  project(id: UUID!): Project
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  invite(id: UUID!): Invite
+  """
+  Res
+  
+  # Errors
+  This function fails if ...
+  """
+  eventTypes: [EventType!]!
+}
+
+type Treasury {
+  id: UUID!
+  vaultId: String!
+  createdAt: NaiveDateTime!
+  wallets: [Wallet!]
+  wallet(assetType: AssetType!): Wallet
+}
+
+type User {
+  id: UUID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  createdAt: String!
+  updatedAt: String!
+  affiliations: [Affiliation!]!
+}
+
+"""
+A UUID is a unique 128-bit number, stored as 16 octets. UUIDs are parsed as
+Strings within GraphQL. UUIDs are used to assign unique identifiers to
+entities without requiring a central allocating authority.
+
+# References
+
+* [Wikipedia: Universally Unique Identifier](http://en.wikipedia.org/wiki/Universally_unique_identifier)
+* [RFC4122: A Universally Unique IDentifier (UUID) URN Namespace](http://tools.ietf.org/html/rfc4122)
+"""
+scalar UUID
+
+type Wallet {
+  address: String!
+  mints: [CollectionMint!]
+  treasuryId: UUID!
+  assetId: AssetType!
+  legacyAddress: String!
+  tag: String!
+  createdAt: NaiveDateTime!
+  removedAt: NaiveDateTime
+  createdBy: UUID!
+}
+
+type Webhook {
+  createdById: UUID!
+  createdBy: User
+  id: UUID!
+  channels: [String!]!
+  projects: [Project!]!
+  endpointId: String!
+  url: String!
+  events: [String!]!
+  description: String!
+  createdAt: NaiveDateTime!
+  organizationId: UUID!
+  updatedAt: NaiveDateTime
+}
+
+type User {
+  name: String
+  email: String
+  image: String
+  wallet: Wallet
+}
+
+type Query {
+  drops: [Drop!]
+  drop(id: ID!): Drop
+  me: User
+}
+
+type Mutation {
+  mint(drop: ID!): CollectionMint
+}

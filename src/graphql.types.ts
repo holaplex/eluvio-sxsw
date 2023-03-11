@@ -383,18 +383,7 @@ export type MintDropInput = {
 
 export type MintEditionPayload = {
   __typename?: 'MintEditionPayload';
-  collectionMint: Model;
-};
-
-export type Model = {
-  __typename?: 'Model';
-  address: Scalars['String'];
-  collectionId: Scalars['UUID'];
-  createdAt: Scalars['NaiveDateTime'];
-  createdBy: Scalars['UUID'];
-  creationStatus: CreationStatus;
-  id: Scalars['UUID'];
-  owner: Scalars['String'];
+  collectionMint: CollectionMint;
 };
 
 export type Mutation = {
@@ -462,7 +451,6 @@ export type Mutation = {
    * This function fails if ...
    */
   deleteWebhook: DeleteWebhookPayload;
-  forgeKey?: Maybe<Scalars['String']>;
   /**
    * Res
    *
@@ -470,6 +458,7 @@ export type Mutation = {
    * This function fails if ...
    */
   inviteMember: Invite;
+  mint?: Maybe<CollectionMint>;
   /**
    * Res
    *
@@ -525,13 +514,13 @@ export type MutationDeleteWebhookArgs = {
 };
 
 
-export type MutationForgeKeyArgs = {
-  key: Scalars['ID'];
+export type MutationInviteMemberArgs = {
+  input: InviteMemberInput;
 };
 
 
-export type MutationInviteMemberArgs = {
-  input: InviteMemberInput;
+export type MutationMintArgs = {
+  drop: Scalars['ID'];
 };
 
 
@@ -615,6 +604,8 @@ export type ProjectDropArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  drop?: Maybe<Drop>;
+  drops?: Maybe<Array<Drop>>;
   /**
    * Res
    *
@@ -622,7 +613,6 @@ export type Query = {
    * This function fails if ...
    */
   eventTypes: Array<EventType>;
-  hello?: Maybe<Scalars['String']>;
   /**
    * Res
    *
@@ -630,6 +620,7 @@ export type Query = {
    * This function fails if ...
    */
   invite?: Maybe<Invite>;
+  me?: Maybe<User>;
   /**
    * Res
    *
@@ -645,6 +636,11 @@ export type Query = {
    */
   project?: Maybe<Project>;
   user?: Maybe<User>;
+};
+
+
+export type QueryDropArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -688,8 +684,11 @@ export type User = {
   email: Scalars['String'];
   firstName: Scalars['String'];
   id: Scalars['UUID'];
+  image?: Maybe<Scalars['String']>;
   lastName: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
   updatedAt: Scalars['String'];
+  wallet?: Maybe<Wallet>;
 };
 
 export type Wallet = {
@@ -847,7 +846,6 @@ export type ResolversTypes = {
   MetadataJsonPropertyInput: MetadataJsonPropertyInput;
   MintDropInput: MintDropInput;
   MintEditionPayload: ResolverTypeWrapper<MintEditionPayload>;
-  Model: ResolverTypeWrapper<Model>;
   Mutation: ResolverTypeWrapper<{}>;
   NaiveDateTime: ResolverTypeWrapper<Scalars['NaiveDateTime']>;
   Organization: ResolverTypeWrapper<Organization>;
@@ -910,7 +908,6 @@ export type ResolversParentTypes = {
   MetadataJsonPropertyInput: MetadataJsonPropertyInput;
   MintDropInput: MintDropInput;
   MintEditionPayload: MintEditionPayload;
-  Model: Model;
   Mutation: {};
   NaiveDateTime: Scalars['NaiveDateTime'];
   Organization: Organization;
@@ -1135,18 +1132,7 @@ export type MetadataJsonAttributeResolvers<ContextType = any, ParentType extends
 };
 
 export type MintEditionPayloadResolvers<ContextType = any, ParentType extends ResolversParentTypes['MintEditionPayload'] = ResolversParentTypes['MintEditionPayload']> = {
-  collectionMint?: Resolver<ResolversTypes['Model'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type ModelResolvers<ContextType = any, ParentType extends ResolversParentTypes['Model'] = ResolversParentTypes['Model']> = {
-  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  collectionId?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['NaiveDateTime'], ParentType, ContextType>;
-  createdBy?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
-  creationStatus?: Resolver<ResolversTypes['CreationStatus'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
-  owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  collectionMint?: Resolver<ResolversTypes['CollectionMint'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1160,8 +1146,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createProject?: Resolver<ResolversTypes['CreateProjectPayload'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createWebhook?: Resolver<ResolversTypes['CreateWebhookPayload'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'input'>>;
   deleteWebhook?: Resolver<ResolversTypes['DeleteWebhookPayload'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'input'>>;
-  forgeKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationForgeKeyArgs, 'key'>>;
   inviteMember?: Resolver<ResolversTypes['Invite'], ParentType, ContextType, RequireFields<MutationInviteMemberArgs, 'input'>>;
+  mint?: Resolver<Maybe<ResolversTypes['CollectionMint']>, ParentType, ContextType, RequireFields<MutationMintArgs, 'drop'>>;
   mintEdition?: Resolver<ResolversTypes['MintEditionPayload'], ParentType, ContextType, RequireFields<MutationMintEditionArgs, 'input'>>;
 };
 
@@ -1213,9 +1199,11 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  drop?: Resolver<Maybe<ResolversTypes['Drop']>, ParentType, ContextType, RequireFields<QueryDropArgs, 'id'>>;
+  drops?: Resolver<Maybe<Array<ResolversTypes['Drop']>>, ParentType, ContextType>;
   eventTypes?: Resolver<Array<ResolversTypes['EventType']>, ParentType, ContextType>;
-  hello?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   invite?: Resolver<Maybe<ResolversTypes['Invite']>, ParentType, ContextType, RequireFields<QueryInviteArgs, 'id'>>;
+  me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   organization?: Resolver<Maybe<ResolversTypes['Organization']>, ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
   project?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<QueryProjectArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'id'>>;
@@ -1240,8 +1228,11 @@ export type UserResolvers<ContextType = any, ParentType extends ResolversParentT
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['UUID'], ParentType, ContextType>;
+  image?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  wallet?: Resolver<Maybe<ResolversTypes['Wallet']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1301,7 +1292,6 @@ export type Resolvers<ContextType = any> = {
   MetadataJson?: MetadataJsonResolvers<ContextType>;
   MetadataJsonAttribute?: MetadataJsonAttributeResolvers<ContextType>;
   MintEditionPayload?: MintEditionPayloadResolvers<ContextType>;
-  Model?: ModelResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   NaiveDateTime?: GraphQLScalarType;
   Organization?: OrganizationResolvers<ContextType>;

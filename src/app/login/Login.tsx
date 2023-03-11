@@ -1,15 +1,29 @@
 "use client";
-
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+
+const fqdn = process.env.NEXT_PUBLIC_FQDN as string;
 
 export default function Login() {
+  const searchParams = useSearchParams();
+
   return (
     <div className="flex flex-col justify-center items-center min-h-screen w-full gap-4">
-      <h1>Sign into Holaplex Hub Starter</h1>
+      <Link href="/keys" className="fixed top-8 right-8">
+        <XMarkIcon
+          className="w-14 h-14 cursor-pointer hover:opacity-80"
+          color="#BDBDBD"
+        />
+      </Link>
+      <h1 className="text-2xl bold mb-8">Sign in to create your free wallet</h1>
       <button
-        className="rounded-md px-4 py-2 bg-white border-black text-black border-2 hover:bg-black hover:text-white"
+        className="rounded-full px-10 py-3 bg-[#4c8bf5] text-white hover:opacity-80 transition"
         onClick={() =>
-          signIn("google", { callbackUrl: "http://localhost:3000/drops" })
+          signIn("google", {
+            callbackUrl: `${fqdn}${searchParams.get("return_to")}`,
+          })
         }
       >
         Login with Google

@@ -7,7 +7,7 @@ import prisma from "@/modules/db";
 import { CreateCustomer } from "@/mutations/customer.graphql";
 import { CreateCustomerInput, CreateCustomerPayload } from "@/graphql.types";
 import db from "@/modules/db";
-import { client } from "@/modules/holaplex";
+import holaplex from "@/modules/holaplex";
 
 interface CreateCustomerData {
   createCustomer: CreateCustomerPayload;
@@ -27,7 +27,7 @@ export const authOptions: NextAuthOptions = {
   ],
   events: {
     async createUser({ user }) {
-      const { data } = await client.mutate<
+      const { data } = await holaplex.mutate<
         CreateCustomerData,
         CreateCustomerVars
       >({
