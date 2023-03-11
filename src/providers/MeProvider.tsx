@@ -21,21 +21,26 @@ export default function MeProvider({
   children: React.ReactNode;
 }) {
   const [me, setMe] = useState(hydrate);
+  const [isPolling, setIsPolling] = useState(false);
   const [_, { loading, data, stopPolling, startPolling }] =
     useLazyQuery<GetMeData>(GetMe, {
       onCompleted: (data) => {
+        console.log('onComplete of find me', data);
         setMe(data.me);
         stopPolling();
       },
     });
 
   useEffect(() => {
-    if (!me || me?.wallet) {
+    if (!me || me?.wallet || isPolling) {
       return;
     }
 
-    startPolling(25);
-  }, [me, startPolling]);
+    console.log('start polling', me);
+
+    startPolling(250);
+    setIsPolling(true);
+  }, [me, startPolling, isPolling]);
 
   return <MeContext.Provider value={{ me }}>{children}</MeContext.Provider>;
 }
