@@ -22,9 +22,13 @@ export default function MeProvider({
 }) {
   const [me, setMe] = useState(hydrate);
   const [isPolling, setIsPolling] = useState(false);
-  const [_, { loading, data, stopPolling, startPolling }] =
+  const [_, { stopPolling, startPolling }] =
     useLazyQuery<GetMeData>(GetMe, {
       onCompleted: (data) => {
+        if (!data.me.wallet) {
+          return;
+        }
+
         console.log('onComplete of find me', data);
         setMe(data.me);
         stopPolling();
