@@ -100,8 +100,8 @@ export default function DropPage() {
           />
         </div>
         <p className="mt-4 text-gray-300 text-center">
-          See how easy it is to administer cross-chain crypto assets and work
-          flows using the Holaplex Hub + the Eluvio content fabric.
+          See how easy it is to administer cross-chain crypto assets and
+          workflows using the Holaplex Hub + the Eluvio content fabric.
         </p>
       </main>
     </>

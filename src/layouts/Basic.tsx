@@ -47,20 +47,40 @@ export default function Basic({
             </div>
           </div>
         ) : (
-          <Link
-            href={`/login?return_to=${pathname}`}
-            className="rounded-full px-6 py-3 bg-yellow-300 hover:bg-opacity-80 transition text-black"
-          >
-            Sign up
-          </Link>
+          <div className="flex flex-row justify-between items-center w-full">
+            <span className="text-xs text-gray-300">
+              Sign up to generate your wallet
+            </span>
+            <Link
+              href={`/login?return_to=${pathname}`}
+              className="rounded-full px-6 py-3 bg-yellow-300 hover:bg-opacity-80 transition text-black"
+            >
+              Sign up
+            </Link>
+          </div>
         )}
       </footer>
       <div className="flex flex-row gap-4 justify-between items-center mb-4">
-        <Image src="/img/holaplex-logo.png" alt="holaplex logo" width={69} height={6} />
+        <Image
+          src="/img/holaplex-logo.png"
+          alt="holaplex logo"
+          width={69}
+          height={6}
+        />
         <PlusIcon className="w-3" color="#BDBDBD" />
-        <Image src="/img/eluvio-logo.png" alt="eluvio logo" width={54} height={24} />
+        <Image
+          src="/img/eluvio-logo.png"
+          alt="eluvio logo"
+          width={54}
+          height={24}
+        />
         <PlusIcon className="w-3" color="#BDBDBD" />
-        <Image src="/img/solana-logo.png" alt="eluvio log" width={68} height={10} />
+        <Image
+          src="/img/solana-logo.png"
+          alt="eluvio log"
+          width={68}
+          height={10}
+        />
       </div>
     </>
   );
