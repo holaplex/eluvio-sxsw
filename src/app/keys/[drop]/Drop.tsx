@@ -2,7 +2,6 @@
 
 import { Collection, Drop as DropType } from "@/graphql.types";
 import { CheckIcon } from "@heroicons/react/24/outline";
-import { Wallet } from "@prisma/client";
 import { ForgeKey } from "@/mutations/key.graphql";
 import { useApolloClient, useMutation, useQuery } from "@apollo/client";
 import { GetDrop } from "@/queries/drop.graphql";
@@ -10,7 +9,7 @@ import BounceLoader from "react-spinners/BounceLoader";
 import clsx from "clsx";
 import { isNil, not, pipe } from "ramda";
 import useMe from "@/hooks/useMe";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ForgeKeyData {
   forgeKey: string;
@@ -31,6 +30,7 @@ export default function Drop({ drop }: { drop: string }) {
   const me = useMe();
   const client = useApolloClient();
   const router = useRouter();
+  const pathname = usePathname();
   const dropQuery = useQuery<GetDropsData, GetDropVars>(GetDrop, {
     variables: { drop },
   });
@@ -69,7 +69,7 @@ export default function Drop({ drop }: { drop: string }) {
                       address: me?.wallet?.address as string,
                       owns: 1,
                       collectionId: data?.drop.collection.id,
-                      mints: [],
+                      mints: [forgeKey],
                     },
                   ],
                 },
@@ -77,7 +77,8 @@ export default function Drop({ drop }: { drop: string }) {
             };
           }
         );
-        router.push('/keys');
+
+        router.push("/keys");
       },
     });
   };
@@ -121,7 +122,13 @@ export default function Drop({ drop }: { drop: string }) {
             {owns && <CheckIcon className="w-1/3 z-30 text-white" />}
           </div>
           <button
-            onClick={onForge}
+            onClick={() => {
+              if (me) {
+                onForge();
+              } else {
+                router.push(`/login?return_to=${pathname}`);
+              }
+            }}
             disabled={owns || loading}
             className={clsx(
               "rounded-full w-full mt-4 px-6 py-3 bg-yellow-300 hover:bg-opacity-80 transition text-black",

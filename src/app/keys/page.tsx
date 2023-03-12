@@ -61,9 +61,8 @@ export default function DropPage() {
               );
 
               return (
-                <Link
+                <div
                   className="relative aspect-square rounded-lg overflow-hidden flex justify-center items-center"
-                  href={`/keys/${drop.id}`}
                   key={drop.id}
                 >
                   <div
@@ -78,7 +77,7 @@ export default function DropPage() {
                     alt={`nft ${metadataJson?.name}`}
                   />
                   {owns && <CheckIcon className="w-1/3 z-30 text-white" />}
-                </Link>
+                </div>
               );
             })
           )}
@@ -86,20 +85,16 @@ export default function DropPage() {
         <div className="relative mt-6 mx-auto">
           {!ownsTwo && (
             <>
-            <div className="absolute top-0 left-0 right-0 bottom-0 z-10 bg-black opacity-60" />
-            <div className="flex flex-row gap-2 items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
-            <LockClosedIcon
-                color="#fff"
-                className="w-10"
-              />
-              <p>Video locked</p>
-            </div>
-
+              <div className="absolute top-0 left-0 right-0 bottom-0 z-10 bg-black opacity-60" />
+              <div className="flex flex-row gap-2 items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                <LockClosedIcon color="#fff" className="w-10" />
+                <p>Video locked</p>
+              </div>
             </>
           )}
           <video
             controls={ownsTwo}
-            className="w-full max-w-4xl object-fill mt-6"
+            className="w-full max-w-3xl object-fill mt-6"
             src="https://host-154-14-185-103.contentfabric.io/qlibs/ilib2mn4BjaYiHPipVDr13JT6w9ckc2s/q/iq__2C7ZEPtiUe2CwVdFgyKoYSzkivc5/files/Holaplex%20Demo.mp4?authorization=eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSIsImFkZHIiOiIweDhiOTMyNDc3MTI4MzE1NDllOTAxYjgyYjU5M2YzMDdlYmI2NTI3ZGEiLCJxbGliX2lkIjoiaWxpYjJtbjRCamFZaUhQaXBWRHIxM0pUNnc5Y2tjMnMifQ%3D%3D.RVMyNTZLX0FFYVB1REt1V2ZMaTF6ekhFMmRpSGt1VTExb3ZITHlMR1FmNHRDQzY5Z0ppUFNzY01IYTM2c3l1UHR2TjZXdVcyVzlHdzl4eUp1UzlGalc5Nll4cVFRa2JM"
             poster="https://i.vimeocdn.com/video/1628636657-69e75ca7cadeccbfa0a986346b163a8c215941128ebbb003a5063f583238e9bf-d?mw=2200&mh=1239&q=70"
           />

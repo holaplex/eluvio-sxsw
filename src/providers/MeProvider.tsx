@@ -22,29 +22,23 @@ export default function MeProvider({
 }) {
   const [me, setMe] = useState(hydrate);
   const [isPolling, setIsPolling] = useState(false);
-  const [_, { stopPolling, startPolling }] =
-    useLazyQuery<GetMeData>(GetMe, {
-      onCompleted: (data) => {
-        if (!data.me.wallet) {
-          return;
-        }
-
-        console.log('onComplete of find me', data);
-        setMe(data.me);
-        stopPolling();
-      },
-    });
+  const [_, { data, stopPolling, startPolling }] =
+    useLazyQuery<GetMeData>(GetMe);
 
   useEffect(() => {
+    if (data?.me?.wallet && isPolling) {
+      setMe(data.me);
+      stopPolling();
+      return;
+    }
+
     if (!me || me?.wallet || isPolling) {
       return;
     }
 
-    console.log('start polling', me);
-
     startPolling(250);
     setIsPolling(true);
-  }, [me, startPolling, isPolling]);
+  }, [me, startPolling, isPolling, stopPolling, data]);
 
   return <MeContext.Provider value={{ me }}>{children}</MeContext.Provider>;
 }
