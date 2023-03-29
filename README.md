@@ -54,6 +54,8 @@ See your app at [http://localhost:3000](http://localhost:3000)
 Create a `.env` file at the root of the project. Add the following environment variable.
 
 ```
+NEXT_PUBLIC_FQDN=http://localhost:3000
+
 # setup SSO with Google
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
