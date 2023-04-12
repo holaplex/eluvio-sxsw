@@ -54,7 +54,7 @@ export default function DropPage() {
               <div className="w-full aspect-square bg-gray-800 animate-pulse rounded-lg" />
             </>
           ) : (
-            dropsQuery.data?.drops.map((drop) => {
+            dropsQuery.data?.drops?.map((drop) => {
               const metadataJson = drop.collection.metadataJson;
               const owns = drop.collection?.holders?.find(
                 (holder) => holder.address === me?.wallet?.address

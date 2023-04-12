@@ -70,6 +70,7 @@ type Collection {
   address: String
   """The current number of NFTs minted from the collection."""
   totalMints: Int!
+  signature: String
   """
   The metadata json associated to the collection.
   ## References
@@ -82,6 +83,8 @@ type Collection {
   creators: [CollectionCreator!]
   """The list of current holders of NFTs from the collection."""
   holders: [Holder!]
+  """A list of all NFT purchases from the collection, including both primary and secondary sales."""
+  purchases: [Purchase!]
 }
 
 type CollectionCreator {
@@ -113,7 +116,14 @@ type CollectionMint {
   creationStatus: CreationStatus!
   createdBy: UUID!
   createdAt: NaiveDateTime!
+  signature: String
   collection: Collection
+  """
+  The metadata json associated to the collection.
+  ## References
+  [Metaplex v1.1.0 Standard](https://docs.metaplex.com/programs/token-metadata/token-standard)
+  """
+  metadataJson: MetadataJson
 }
 
 """This struct represents the input for creating a new API credential, including the ID of the organization that the credential will be associated with and the friendly name assigned to the credential."""
@@ -212,8 +222,12 @@ type CreateWebhookPayload {
 }
 
 enum CreationStatus {
+  BLOCKED
+  CANCELED
   CREATED
+  FAILED
   PENDING
+  REJECTED
 }
 
 """An `OAuth2` client application used for authentication with the Hub API."""
@@ -242,8 +256,16 @@ type Customer {
   createdAt: NaiveDateTime!
   """An optional datetime indicating the last time the customer record was updated. If the customer record has not been updated, this field will be `null`."""
   updatedAt: NaiveDateTime
+  """
+  Returns all the wallet addresses associated with the customer. The blockchain of the address is not included and they are in no particular order. In the future, the blockchain may be indicated with a pattern of {blockchain}:{address}.
+  This field returns null when there is no treasury assigned to the customer yet.
+  """
+  addresses: [String!]
+  """The NFTs owned by any of the customers' wallets."""
+  mints: [CollectionMint!]
   """The treasury assigned to the customer, which contains the customer's wallets."""
   treasury: Treasury
+  wallet(assetId: AssetType): [Wallet!]
 }
 
 """
@@ -252,6 +274,10 @@ Implement the DateTime<Utc> scalar
 The input/output is a string in RFC3339 format.
 """
 scalar DateTime
+
+input DeactivateMemberInput {
+  id: UUID!
+}
 
 """The input for deleting a credential."""
 input DeleteCredentialInput {
@@ -300,6 +326,8 @@ type Drop {
   collection: Collection!
   """The current status of the drop."""
   status: DropStatus!
+  """A list of all NFT purchases from this drop."""
+  purchases: [Purchase!]
 }
 
 """The different phases of a drop."""
@@ -314,8 +342,12 @@ enum DropStatus {
   EXPIRED
   """The drop is still being created and is not ready to mint."""
   CREATING
+  """The drop is temporarily paused and cannot be minted at the moment."""
   PAUSED
+  """The drop is permanently shut down and can no longer be minted."""
   SHUTDOWN
+  """The creation process for the drop has failed"""
+  FAILED
 }
 
 """The input for editing the name of an existing credential by providing the `client_id` of the credential and the new `name` to be assigned."""
@@ -470,6 +502,8 @@ type Member {
   revokedAt: NaiveDateTime
   """The ID of the invitation that the member accepted to join the organization."""
   inviteId: UUID!
+  """The datetime, in UTC, when the member was deactivated from the organization."""
+  deactivatedAt: NaiveDateTime
   """The Holaplex organization to which the member belongs, representing an individual who has been granted access to the organization."""
   organization: Organization
   """The invitation to join the Holaplex organization that the member accepted in order to gain access to the organization."""
@@ -482,7 +516,7 @@ The collection's associated metadata JSON.
 [Metaplex v1.1.0 Standard](https://docs.metaplex.com/programs/token-metadata/token-standard)
 """
 type MetadataJson {
-  collectionId: UUID!
+  id: UUID!
   identifier: String!
   """The assigned name of the NFT."""
   name: String!
@@ -504,7 +538,7 @@ type MetadataJson {
 """An attribute of the NFT."""
 type MetadataJsonAttribute {
   id: UUID!
-  collectionId: UUID!
+  metadataJsonId: UUID!
   """The name of the attribute."""
   traitType: String!
   """The value of the attribute."""
@@ -580,6 +614,12 @@ type Mutation {
   """
   shutdownDrop(input: ShutdownDropInput!): ShutdownDropPayload!
   """
+  This mutation allows updating a drop and it's associated collection by ID.
+  It returns an error if it fails to reach the database, emit update events or assemble the on-chain transaction.
+  Returns the `PatchDropPayload` object on success.
+  """
+  patchDrop(input: PatchDropInput!): PatchDropPayload!
+  """
   This mutation mints an NFT edition for a specific drop ID. The mint returns immediately with a creation status of CREATING. You can [set up a webhook](https://docs.holaplex.dev/hub/For%20Developers/webhooks-overview) to receive a notification when the mint is accepted by the blockchain.
   # Errors
   If the mint cannot be saved to the database or fails to be emitted for submission to the desired blockchain, the mutation will result in an error.
@@ -614,6 +654,20 @@ type Mutation {
   This mutation will produce an error if it is unable to connect to the database or if the user's email does not match the invitation.
   """
   acceptInvite(input: AcceptInviteInput!): AcceptInvitePayload!
+  """
+  Returns member object on success
+  
+  # Errors
+  This code may result in an error if the update to the database fails or if it fails to produce an event.
+  """
+  deactivateMember(input: DeactivateMemberInput!): Member!
+  """
+  Returns member object on success
+  
+  # Errors
+  This code may result in an error if the update to the database fails or if it fails to produce an event.
+  """
+  reactivateMember(input: ReactivateMemberInput!): Member!
   """
   Create a wallet for a customer and assign it to the customer's treasury account.
   
@@ -753,6 +807,30 @@ type Owner {
   organization: Organization
 }
 
+"""Input object for patching a drop and associated collection by ID"""
+input PatchDropInput {
+  """The unique identifier of the drop"""
+  id: UUID!
+  """The new price for the drop in the native token of the blockchain"""
+  price: Int
+  """The new start time for the drop in UTC"""
+  startTime: DateTime
+  """The new end time for the drop in UTC"""
+  endTime: DateTime
+  """The new seller fee basis points for the drop"""
+  sellerFeeBasisPoints: Int
+  """The new metadata JSON for the drop"""
+  metadataJson: MetadataJsonInput
+  """The creators of the drop"""
+  creators: [CollectionCreatorInput!]
+}
+
+"""Represents the result of a successful patch drop mutation."""
+type PatchDropPayload {
+  """The drop that has been patched."""
+  drop: Drop!
+}
+
 """Represents input fields for pausing a drop."""
 input PauseDropInput {
   drop: UUID!
@@ -791,6 +869,26 @@ type Project {
   treasury: Treasury
 }
 
+"""Represents the purchase of an NFT."""
+type Purchase {
+  """The ID of the purchase."""
+  id: UUID!
+  """The ID of the NFT being purchased."""
+  mintId: UUID!
+  """The ID of the drop that facilitated the purchase, if any."""
+  dropId: UUID
+  """The wallet address of the buyer."""
+  wallet: String!
+  """The amount spent on the purchase."""
+  spent: Int!
+  """The signature of the transaction, if any."""
+  txSignature: String
+  """The status of the creation of the NFT."""
+  status: CreationStatus!
+  """The date and time when the purchase was created."""
+  createdAt: NaiveDateTime!
+}
+
 type Query {
   """Retrieve a user identity by providing their ID."""
   user(id: UUID!): User
@@ -812,6 +910,10 @@ type Query {
   This function returns an error if there was a problem with retrieving the event types.
   """
   eventTypes: [EventType!]!
+}
+
+input ReactivateMemberInput {
+  id: UUID!
 }
 
 """Represents input fields for resuming a paused drop."""
@@ -890,13 +992,13 @@ type Wallet {
   """The NFTs that were minted from Holaplex and are owned by the wallet's address."""
   mints: [CollectionMint!]
   treasuryId: UUID!
-  """The wallet's associated blockchain."""
-  assetId: AssetType!
   legacyAddress: String!
   tag: String!
   createdAt: NaiveDateTime!
   removedAt: NaiveDateTime
   createdBy: UUID!
+  """The wallet's associated blockchain."""
+  assetId: AssetType!
 }
 
 """A webhook represents an endpoint registered to receive notifications for specific events within a project."""
@@ -925,6 +1027,23 @@ type Webhook {
   organizationId: UUID!
   """Retrieves the last update datetime of the webhook."""
   updatedAt: NaiveDateTime
+}
+
+type User {
+  name: String
+  email: String
+  image: String
+  wallet: Wallet
+}
+
+type Query {
+  drops: [Drop!]
+  drop(id: ID!): Drop
+  me: User
+}
+
+type Mutation {
+  mint(drop: ID!): CollectionMint
 }
 
 type User {

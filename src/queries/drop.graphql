@@ -13,6 +13,7 @@ query GetDrops {
         owns
       }
       metadataJson {
+        id
         image
         name
         description
@@ -36,6 +37,7 @@ query GetDrop($drop: ID!) {
         owns
       }
       metadataJson {
+        id
         image
         name
         description

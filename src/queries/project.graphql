@@ -1,5 +1,6 @@
 query GetProjectDrop($project: UUID!, $drop: UUID!) {
   project(id: $project) {
+    id
     drop(id: $drop) {
       id
       startTime
@@ -14,6 +15,7 @@ query GetProjectDrop($project: UUID!, $drop: UUID!) {
           owns
         }
         metadataJson {
+          id
           image
           name
           description
@@ -29,6 +31,7 @@ query GetProjectDrop($project: UUID!, $drop: UUID!) {
 
 query GetProjectDrops($project: UUID!) {
   project(id: $project) {
+    id
     drops {
       id
       startTime
@@ -43,6 +46,7 @@ query GetProjectDrops($project: UUID!) {
           owns
         }
         metadataJson {
+          id
           image
           name
           description
